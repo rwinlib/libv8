@@ -1,4 +1,4 @@
-# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Maintainer: Jeroen Ooms <jeroenooms@gmail.com>
 
 _realname=v8
 pkgbase=mingw-w64-${_realname}-315
@@ -18,7 +18,7 @@ source=("https://github.com/v8/v8/archive/${pkgver}.tar.gz")
 md5sums=('1406770373cc26e5af26e5e04c2756f2')
 
 prepare() {
-  cd v8-${pkgver}
+  cd ${_realname}-${pkgver}
   sed -i s/winmm.lib/winmm/g tools/gyp/v8.gyp
   sed -i s/ws2_32.lib/ws2_32/g tools/gyp/v8.gyp
   sed -i '/#include "cctest.h"/a #include "win32-headers.h"' test/cctest/test-platform-win32.cc
@@ -38,7 +38,7 @@ build() {
       _arch=x64
     ;;
   esac
-  cd "${srcdir}"/v8-${pkgver}
+  cd "${srcdir}/${_realname}-${pkgver}"
   
   GYP_GENERATORS=make \
     $PYTHON build/gyp_v8 \
@@ -49,13 +49,12 @@ build() {
       --generator-output=${BUILDDIR} \
       -f make
 
-  CXXFLAGS=-I/mingw64/include LDFLAGS=-L/mingw64/lib CXX=/c/mingw-builds/x64-4.6.3-release-win32-sjlj-rev2/bin/g++ LINK=/c/mingw-builds/x64-4.6.3-release-win32-sjlj-rev2/bin/g++ make -C ${BUILDDIR} BUILDTYPE=${BUILDTYPE} V=1
-  CXXFLAGS=-I/mingw64/include LDFLAGS=-L/mingw64/lib CXX=/c/mingw-builds/x64-4.6.3-release-win32-sjlj-rev2/bin/g++ LINK=/c/mingw-builds/x64-4.6.3-release-win32-sjlj-rev2/bin/g++ make -C ${BUILDDIR} BUILDTYPE=${BUILDTYPE} mksnapshot V=1
-  CXXFLAGS=-I/mingw64/include LDFLAGS=-L/mingw64/lib CXX=/c/mingw-builds/x64-4.6.3-release-win32-sjlj-rev2/bin/g++ LINK=/c/mingw-builds/x64-4.6.3-release-win32-sjlj-rev2/bin/g++ make -C ${BUILDDIR} BUILDTYPE=${BUILDTYPE} V=1
+  LINK=g++ make -C ${BUILDDIR} BUILDTYPE=${BUILDTYPE} mksnapshot V=1
+  LINK=g++ make -C ${BUILDDIR} BUILDTYPE=${BUILDTYPE} V=1
 }
 
 package() {
-  cd "v8-${pkgver}"
+  cd "${_realname}-${pkgver}"
   local BUILDTYPE=Release
   local BUILDDIR="${srcdir}/build-${CARCH}"
 
