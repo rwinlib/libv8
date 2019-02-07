@@ -45,7 +45,8 @@ source=("https://nodejs.org/dist/v${pkgver}/node-v${pkgver}.tar.xz"
         '0021-Use-wide-character-Win32-API-functions-to-handle-wch.patch'
         '0022-Disable-MSVC_HACK.patch'
         '0023-Make-sure-that-__rdtsc-is-declared.patch'
-        'node')
+        'node'
+        'https://github.com/v8/v8/commit/8ce8b7f02264873346f8a6ca0be5b6492dd4e7c4.patch')
 
 prepare() {
   cd "${srcdir}/node-v${pkgver}"
@@ -73,6 +74,7 @@ prepare() {
   patch -Np1 -i "${srcdir}/0021-Use-wide-character-Win32-API-functions-to-handle-wch.patch"
   patch -Np1 -i "${srcdir}/0022-Disable-MSVC_HACK.patch"
   patch -Np1 -i "${srcdir}/0023-Make-sure-that-__rdtsc-is-declared.patch"
+  patch -Rp1 -d "deps/v8" -i "${srcdir}/8ce8b7f02264873346f8a6ca0be5b6492dd4e7c4.patch"
 }
 
 build() {
@@ -120,8 +122,8 @@ build() {
   # Work around the problem where the protocol files would be generated into a
   # subdirectory relative to deps/v8/src/inspector instead of relative to the
   # top-level directory.
-  CXXFLAGS=-D_WIN32_WINNT=0x0600 make out/Release/obj/gen/src/inspector/protocol/Forward.h
-  CXXFLAGS=-D_WIN32_WINNT=0x0600 make
+  CXXFLAGS="-O2 -D_WIN32_WINNT=0x0600" make out/Release/obj/gen/src/inspector/protocol/Forward.h
+  CXXFLAGS="-O2 -D_WIN32_WINNT=0x0600" make
 
   # flatten the nested node_modules/ hierarchy
   test -z "$(find deps/npm/node_modules | grep '^.\{140,\}$')" ||
@@ -182,4 +184,5 @@ sha256sums=('40a6eb51ea37fafcf0cfb58786b15b99152bec672cccf861c14d1cca0ad4758a'
             'b68ecff38ab7e1a22274a48f0487cebe2769e9222d75da96f8eab2732d79efb9'
             '44a8d757584cb725760c9d9bd661fb23ee0a2b555ffca8a449573e4d03db7dcc'
             '8cc3ef3ce149e5f0869d434538a9bd0a934afc52f0f571f6436694ce11587d12'
-            '284251ff443506cd61530a026afb421d0084e4ad25c037bcfe3a045246d729a2')
+            '284251ff443506cd61530a026afb421d0084e4ad25c037bcfe3a045246d729a2'
+            'SKIP')
